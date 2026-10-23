@@ -13,18 +13,69 @@ public class TankGunner : MonoBehaviour
     public int sabotRounds = 20;
     public int heatRounds = 15;
     public bool controlsEnabled = true;
+    [Range(0.01f, 2f)] public float mouseSensitivity = 0.5f;
+    private bool cursorCaptured;
 
     public AmmoType selectedAmmo = AmmoType.SABOT;
     float nextFireTime;
     public float lastLasedRange { get; private set; }
+    public bool hasLased { get; private set; }
+    public float reloadRemaining => Mathf.Max(0f, nextFireTime - Time.time);
+    public int selectedRounds => selectedAmmo == AmmoType.SABOT ? sabotRounds : heatRounds;
+
+    void OnEnable()
+    {
+        if (controlsEnabled) CaptureCursor();
+    }
+
+    void OnDisable()
+    {
+        ReleaseCursor();
+    }
+
+    void CaptureCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        cursorCaptured = true;
+    }
+
+    void ReleaseCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        cursorCaptured = false;
+    }
 
     void Update()
     {
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            ReleaseCursor();
+            return;
+        }
+
+        if (!controlsEnabled)
+        {
+            if (cursorCaptured) ReleaseCursor();
+            return;
+        }
+
+        // Click the Game view to recapture the mouse after Escape.
+        if (!cursorCaptured && Mouse.current != null &&
+            Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            CaptureCursor();
+            return;
+        }
+
+        if (!cursorCaptured) return;
+
         if (!controlsEnabled || !tankTurret || !gunnerCamera ||
             Mouse.current == null || Keyboard.current == null) return;
 
         Vector2 delta = Mouse.current.delta.ReadValue();
-        tankTurret.Aim(delta.x * 0.01f, delta.y * 0.01f);
+        tankTurret.Aim(delta.x * mouseSensitivity, delta.y * mouseSensitivity);
 
         if (Keyboard.current.digit1Key.wasPressedThisFrame) selectedAmmo = AmmoType.SABOT;
         if (Keyboard.current.digit2Key.wasPressedThisFrame) selectedAmmo = AmmoType.HEAT;
@@ -37,6 +88,7 @@ public class TankGunner : MonoBehaviour
         Ray ray = new Ray(gunnerCamera.transform.position, gunnerCamera.transform.forward);
         lastLasedRange = Physics.Raycast(ray, out RaycastHit hit, maxRange, targetLayers)
             ? hit.distance : maxRange;
+        hasLased = true;
         Debug.Log($"LASE: {lastLasedRange:F0} m");
     }
 
