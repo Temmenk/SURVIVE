@@ -107,8 +107,11 @@ public class TankGunner : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, maxRange, targetLayers))
         {
             Debug.Log($"{selectedAmmo} hit {hit.collider.name}");
-            hit.collider.SendMessage("OnTankHit", selectedAmmo.ToString(),
-                                     SendMessageOptions.DontRequireReceiver);
+            TankHitbox hitbox = hit.collider.GetComponent<TankHitbox>();
+            if (hitbox != null)
+                hitbox.ReceiveHit(selectedAmmo);
+            else
+                Debug.Log("Hit collider has no TankHitbox: " + hit.collider.name);
         }
         else Debug.Log($"{selectedAmmo} fired: miss");
     }
