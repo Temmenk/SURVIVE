@@ -40,7 +40,7 @@ public class GunnerHUD : MonoBehaviour
             ? $"RANGE  {gunner.lastLasedRange:0} m"
             : "RANGE  ---- m", readoutStyle);
         GUI.Label(new Rect(24, 88, 350, 30),
-            $"AMMO   {gunner.selectedAmmo}  ({gunner.selectedRounds})", readoutStyle);
+            $"INDEX: {gunner.selectedAmmo}  ({gunner.selectedRounds} RDS)", readoutStyle);
         string status = gunner.selectedRounds <= 0 ? "EMPTY" :
             gunner.reloadRemaining > 0 ? $"RELOAD  {gunner.reloadRemaining:0.0}s" : "READY";
         GUI.Label(new Rect(24, 121, 350, 30), status, readoutStyle);

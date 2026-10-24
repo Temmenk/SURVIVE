@@ -9,13 +9,16 @@ public class TankTurret : MonoBehaviour
     public float elevationSpeed = 25f;
     public float minElevation = -10f, maxElevation = 20f;
     float elevation;
+    float sightElevation;
+    float ballisticOffset; // Retained until the next successful lase or commander designation.
 
     public void Aim(float yawInput, float pitchInput)
     {
         if (!turret || !gun) return;
         turret.Rotate(0f, yawInput * traverseSpeed * Time.deltaTime, 0f, Space.Self);
-        elevation = Mathf.Clamp(elevation - pitchInput * elevationSpeed * Time.deltaTime,
-                                minElevation, maxElevation);
+        sightElevation = Mathf.Clamp(sightElevation - pitchInput * elevationSpeed * Time.deltaTime,
+                                     minElevation, maxElevation);
+        elevation = Mathf.Clamp(sightElevation + ballisticOffset, minElevation, maxElevation);
         SyncSight();
     }
 
@@ -24,6 +27,7 @@ public class TankTurret : MonoBehaviour
     public void SlewTo(Vector3 worldPoint)
     {
         if (!turret || !gun) return;
+        ballisticOffset = 0f; // Commander designation overrides the stored correction.
 
         Vector3 flatDirection = worldPoint - turret.position;
         flatDirection.y = 0f;
@@ -49,10 +53,47 @@ public class TankTurret : MonoBehaviour
         SyncSight();
     }
 
+    // Adjust barrel pitch only; turret yaw and GPS direction remain unchanged.
+    public bool SetBallisticElevation(Vector3 target, Vector3 muzzlePosition, float speed, float gravity)
+    {
+        if (!turret || !gun || speed <= 0f) return false;
+        Vector3 difference = target - muzzlePosition;
+        float forwardDistance = Vector3.Dot(difference, turret.forward);
+        if (forwardDistance <= 0.01f) return false;
+
+        float height = difference.y;
+        float angle;
+        if (gravity <= 0.0001f)
+        {
+            angle = Mathf.Atan2(height, forwardDistance);
+        }
+        else
+        {
+            float v2 = speed * speed;
+            float discriminant = v2 * v2 - gravity * (gravity * forwardDistance * forwardDistance + 2f * height * v2);
+            if (discriminant < 0f) return false;
+            angle = Mathf.Atan((v2 - Mathf.Sqrt(discriminant)) / (gravity * forwardDistance));
+        }
+
+        float desiredPitch = -angle * Mathf.Rad2Deg;
+        if (desiredPitch < minElevation || desiredPitch > maxElevation) return false;
+        ballisticOffset = desiredPitch - sightElevation;
+        elevation = desiredPitch;
+        gun.localRotation = Quaternion.Euler(elevation, 0f, 0f);
+        return true;
+    }
+
+    public void ClearBallisticSolution()
+    {
+        ballisticOffset = 0f;
+        elevation = sightElevation;
+        if (gun != null) gun.localRotation = Quaternion.Euler(elevation, 0f, 0f);
+    }
+
     void SyncSight()
     {
         gun.localRotation = Quaternion.Euler(elevation, 0f, 0f);
         if (gunnerSightPivot != null)
-            gunnerSightPivot.localRotation = Quaternion.Euler(elevation, 0f, 0f);
+            gunnerSightPivot.localRotation = Quaternion.Euler(sightElevation, 0f, 0f);
     }
 }

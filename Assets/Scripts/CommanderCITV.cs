@@ -29,7 +29,7 @@ public class CommanderCITV : MonoBehaviour
         Vector3 angles = sightPivot.localEulerAngles;
         sightPivot.localEulerAngles = new Vector3(pitch, angles.y, 0f);
 
-        // Hold Space to slew turret toward the commander's designated point.
+        // Space designates and commands the turret; TankGunner yields manual aiming while held.
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Ray ray = new Ray(citvCamera.transform.position, citvCamera.transform.forward);
