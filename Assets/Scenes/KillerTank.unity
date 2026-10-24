@@ -225,7 +225,7 @@ Transform:
   m_GameObject: {fileID: 335410309}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 656, y: -0.00001, z: 540.6}
+  m_LocalPosition: {x: 634.8, y: -0.00001, z: 608.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -383,7 +383,7 @@ Transform:
   m_GameObject: {fileID: 1235523405}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 686.7, y: -0.00001, z: 540.6}
+  m_LocalPosition: {x: 686.7, y: -0.00001, z: 712.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -490,34 +490,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 430518499054646472, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+    - target: {fileID: 2576590132663703070, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
+      propertyPath: heatPrefab
       value: 
-      objectReference: {fileID: 2100000, guid: 52513d89780ce1a4fa7c44de94ffc2f2, type: 2}
-    - target: {fileID: 1302086338239945634, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      objectReference: {fileID: 2343102708705794436, guid: 28b40ddbc48f8204ba62c2de887912b9, type: 3}
+    - target: {fileID: 2576590132663703070, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
+      propertyPath: sabotPrefab
       value: 
-      objectReference: {fileID: 2100000, guid: 52513d89780ce1a4fa7c44de94ffc2f2, type: 2}
-    - target: {fileID: 1386677869571518592, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 5d93e5c03b91c0a4daac951001e89ba1, type: 2}
-    - target: {fileID: 2425795954054887471, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 52513d89780ce1a4fa7c44de94ffc2f2, type: 2}
-    - target: {fileID: 3158352644989601614, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 5d93e5c03b91c0a4daac951001e89ba1, type: 2}
+      objectReference: {fileID: -48277585803267312, guid: ab3028b7cd9e5b04d85c5403e0e39445, type: 3}
+    - target: {fileID: 2576590132663703070, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
+      propertyPath: slewGunToLasedPoint
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3694544374777939498, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
       propertyPath: m_Name
       value: Abrams
       objectReference: {fileID: 0}
-    - target: {fileID: 4870521285051359730, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 52513d89780ce1a4fa7c44de94ffc2f2, type: 2}
+    - target: {fileID: 5527447007544563426, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
+      propertyPath: reticleScale
+      value: 0.69
+      objectReference: {fileID: 0}
     - target: {fileID: 8761974775653771356, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
       propertyPath: m_LocalPosition.x
       value: 683.80383
@@ -528,7 +520,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8761974775653771356, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 470.4945
+      value: 186.2
       objectReference: {fileID: 0}
     - target: {fileID: 8761974775653771356, guid: cf93f631200804d4f87d9c40ff858173, type: 3}
       propertyPath: m_LocalRotation.w

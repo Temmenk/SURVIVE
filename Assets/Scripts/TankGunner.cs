@@ -14,14 +14,33 @@ public class TankGunner : MonoBehaviour
     public int heatRounds = 15;
     public bool controlsEnabled = true;
     [Range(0.01f, 2f)] public float mouseSensitivity = 0.5f;
+    [Header("Projectile Prefabs")]
+    public TankProjectile sabotPrefab;
+    public TankProjectile heatPrefab;
+    public float sabotSpeed = 1500f;
+    public float heatSpeed = 900f;
+
+    [Header("Sight Zoom")]
+    public float lowZoomFOV = 21.8f;
+    public float highZoomFOV = 6.6f;
+    bool highZoom;
     private bool cursorCaptured;
 
     public AmmoType selectedAmmo = AmmoType.SABOT;
     float nextFireTime;
     public float lastLasedRange { get; private set; }
     public bool hasLased { get; private set; }
+    public Vector3 lasedTargetPoint { get; private set; }
+    [Header("Sight-to-Bore Alignment")]
+    public bool slewGunToLasedPoint = true;
+    private bool aligningToLase;
     public float reloadRemaining => Mathf.Max(0f, nextFireTime - Time.time);
     public int selectedRounds => selectedAmmo == AmmoType.SABOT ? sabotRounds : heatRounds;
+
+    void Start()
+    {
+        if (gunnerCamera != null) gunnerCamera.fieldOfView = lowZoomFOV;
+    }
 
     void OnEnable()
     {
@@ -75,7 +94,22 @@ public class TankGunner : MonoBehaviour
             Mouse.current == null || Keyboard.current == null) return;
 
         Vector2 delta = Mouse.current.delta.ReadValue();
-        tankTurret.Aim(delta.x * mouseSensitivity, delta.y * mouseSensitivity);
+        // Manual aiming cancels automatic alignment to the last lased point.
+        if (delta.sqrMagnitude > 0.001f)
+        {
+            aligningToLase = false;
+            tankTurret.Aim(delta.x * mouseSensitivity, delta.y * mouseSensitivity);
+        }
+        else if (aligningToLase)
+        {
+            tankTurret.SlewTo(lasedTargetPoint);
+        }
+
+        if (Keyboard.current.zKey.wasPressedThisFrame)
+        {
+            highZoom = !highZoom;
+            gunnerCamera.fieldOfView = highZoom ? highZoomFOV : lowZoomFOV;
+        }
 
         if (Keyboard.current.digit1Key.wasPressedThisFrame) selectedAmmo = AmmoType.SABOT;
         if (Keyboard.current.digit2Key.wasPressedThisFrame) selectedAmmo = AmmoType.HEAT;
@@ -85,11 +119,26 @@ public class TankGunner : MonoBehaviour
 
     void Lase()
     {
-        Ray ray = new Ray(gunnerCamera.transform.position, gunnerCamera.transform.forward);
-        lastLasedRange = Physics.Raycast(ray, out RaycastHit hit, maxRange, targetLayers)
-            ? hit.distance : maxRange;
-        hasLased = true;
-        Debug.Log($"LASE: {lastLasedRange:F0} m");
+        if (gunnerCamera == null) return;
+
+        Ray sightRay = new Ray(gunnerCamera.transform.position,
+                               gunnerCamera.transform.forward);
+        if (Physics.Raycast(sightRay, out RaycastHit hit, maxRange,
+                            targetLayers, QueryTriggerInteraction.Ignore))
+        {
+            lastLasedRange = hit.distance;
+            lasedTargetPoint = hit.point;
+            hasLased = true;
+            aligningToLase = slewGunToLasedPoint;
+            Debug.Log($"LASE: {lastLasedRange:F0} m on {hit.collider.name}");
+        }
+        else
+        {
+            lastLasedRange = maxRange;
+            hasLased = false;
+            aligningToLase = false;
+            Debug.Log("LASE: NO RETURN");
+        }
     }
 
     void Fire()
@@ -98,21 +147,23 @@ public class TankGunner : MonoBehaviour
         if (selectedAmmo == AmmoType.SABOT && sabotRounds <= 0) return;
         if (selectedAmmo == AmmoType.HEAT && heatRounds <= 0) return;
 
+        TankProjectile prefabCheck = selectedAmmo == AmmoType.SABOT ? sabotPrefab : heatPrefab;
+        if (prefabCheck == null) { Debug.LogWarning("Assign both projectile prefabs first."); return; }
+
         if (selectedAmmo == AmmoType.SABOT) sabotRounds--;
         else heatRounds--;
         nextFireTime = Time.time + reloadSeconds;
 
-        // Prototype: instant hit along bore axis, no ballistic drop.
-        Ray ray = new Ray(muzzle.position, muzzle.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, maxRange, targetLayers))
+        TankProjectile prefab = selectedAmmo == AmmoType.SABOT ? sabotPrefab : heatPrefab;
+        if (prefab == null)
         {
-            Debug.Log($"{selectedAmmo} hit {hit.collider.name}");
-            TankHitbox hitbox = hit.collider.GetComponent<TankHitbox>();
-            if (hitbox != null)
-                hitbox.ReceiveHit(selectedAmmo);
-            else
-                Debug.Log("Hit collider has no TankHitbox: " + hit.collider.name);
+            Debug.LogWarning($"Assign the {selectedAmmo} projectile prefab in TankGunner!");
+            return;
         }
-        else Debug.Log($"{selectedAmmo} fired: miss");
+
+        float speed = selectedAmmo == AmmoType.SABOT ? sabotSpeed : heatSpeed;
+        TankProjectile projectile = Instantiate(prefab, muzzle.position, muzzle.rotation);
+        projectile.Launch(muzzle.forward, speed, selectedAmmo, transform.root, targetLayers);
+        Debug.Log($"{selectedAmmo} launched at {speed} m/s");
     }
 }
