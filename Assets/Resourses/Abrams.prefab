@@ -49,7 +49,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5355537838510232102
 Transform:
   m_ObjectHideFlags: 0
@@ -362,6 +362,7 @@ MonoBehaviour:
   elevationSpeed: 25
   minElevation: -10
   maxElevation: 20
+  laseSightKick: 0.02
 --- !u!114 &3292453635538156673
 MonoBehaviour:
   m_ObjectHideFlags: 0
