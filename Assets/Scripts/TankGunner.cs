@@ -135,8 +135,8 @@ public class TankGunner : MonoBehaviour
         {
             lastLasedRange = maxRange;
             hasLased = false;
-            tankTurret.ClearBallisticSolution();
-            Debug.Log("LASE: NO RETURN");
+            // No return: preserve the last indexed correction until a successful lase.
+            Debug.Log("LASE: NO RETURN (previous index retained)");
         }
     }
 
